@@ -20,9 +20,9 @@ export default class extends Loader {
 
           const progressInPercents = (e.loaded / e.total) * 100
 
-          console.log(progressInPercents)
+          console.log('progress', progressInPercents)
 
-          console.log(handleProgress(progressInPercents))
+          console.log('progress fn', handleProgress(progressInPercents))
 
           handleProgress(progressInPercents);
         });
