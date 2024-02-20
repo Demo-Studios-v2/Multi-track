@@ -373,14 +373,14 @@ export default class {
     });
   }
 
-  load(trackList, handleProgress = (percent) => {}) {
+  load(trackList) {
     const loadPromises = trackList.map((trackInfo) => {
       const loader = LoaderFactory.createLoader(
         trackInfo.src,
         this.ac,
         this.eeloader.load()
       );
-      return loader.load(handleProgress).then((audioBuffer) => {
+      return loader.load((percent) => console.log(percent)).then((audioBuffer) => {
         if (audioBuffer.sampleRate === this.sampleRate) {
           return audioBuffer;
         } else {

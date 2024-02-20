@@ -4,7 +4,7 @@ export default class extends Loader {
   /*
    * Loads an audio file via a FileReader
    */
-  load(handleProgress) {
+  load(handleProgress = (percent) => {}) {
     return new Promise((resolve, reject) => {
       if (
         this.src.type.match(/audio.*/) ||
