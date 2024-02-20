@@ -15,9 +15,7 @@ export default class extends Loader {
       xhr.addEventListener("progress", (e) => {
         super.fileProgress(e);
 
-        console.log('loaded', e.loaded)
-        console.log('total', e.total)
-        console.log('total', (e.loaded / e.total) * 100)
+        console.log(e)
 
         handleProgress((e.loaded / e.total) * 100);
       });
