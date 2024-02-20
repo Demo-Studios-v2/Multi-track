@@ -18,13 +18,11 @@ export default class extends Loader {
         fr.addEventListener("progress", (e) => {
           super.fileProgress(e);
 
-          const progressInPercents = (e.loaded / e.total) * 100
+          console.log('loaded', e.loaded)
+          console.log('total', e.total)
+          console.log('total', (e.loaded / e.total) * 100)
 
-          console.log('progress', progressInPercents)
-
-          console.log('progress fn', handleProgress(progressInPercents))
-
-          handleProgress(progressInPercents);
+          handleProgress((e.loaded / e.total) * 100);
         });
 
         fr.addEventListener("load", (e) => {
