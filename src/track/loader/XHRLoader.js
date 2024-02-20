@@ -5,6 +5,8 @@ export default class extends Loader {
    * Loads an audio file via XHR.
    */
   load(handleProgress = (percent) => {}) {
+    console.log('xhr', handleProgress)
+
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
