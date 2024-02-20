@@ -378,8 +378,7 @@ export default class {
       const loader = LoaderFactory.createLoader(
         trackInfo.src,
         this.ac,
-        this.eeloader
-            .load(() => console.log(123))
+        this.eeloader.load()
       );
       return loader.load(handleProgress).then((audioBuffer) => {
         if (audioBuffer.sampleRate === this.sampleRate) {

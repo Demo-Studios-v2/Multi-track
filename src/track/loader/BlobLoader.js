@@ -18,7 +18,9 @@ export default class extends Loader {
         fr.addEventListener("progress", (e) => {
           super.fileProgress(e);
 
-          handleProgress((e.loaded / e.total) * 100);
+          if (handleProgress) {
+            handleProgress((e.loaded / e.total) * 100);
+          }
         });
 
         fr.addEventListener("load", (e) => {
