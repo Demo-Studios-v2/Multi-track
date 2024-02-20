@@ -4,7 +4,7 @@ export default class extends Loader {
   /*
    * Loads an audio file via a FileReader
    */
-  load() {
+  load(handleProgress) {
     return new Promise((resolve, reject) => {
       if (
         this.src.type.match(/audio.*/) ||
@@ -17,6 +17,8 @@ export default class extends Loader {
 
         fr.addEventListener("progress", (e) => {
           super.fileProgress(e);
+
+          handleProgress((e.loaded / e.total) * 100);
         });
 
         fr.addEventListener("load", (e) => {

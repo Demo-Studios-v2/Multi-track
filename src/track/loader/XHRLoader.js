@@ -4,7 +4,7 @@ export default class extends Loader {
   /**
    * Loads an audio file via XHR.
    */
-  load() {
+  load(handleProgress) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
@@ -14,6 +14,8 @@ export default class extends Loader {
 
       xhr.addEventListener("progress", (e) => {
         super.fileProgress(e);
+
+        handleProgress((e.loaded / e.total) * 100)
       });
 
       xhr.addEventListener("load", (e) => {
