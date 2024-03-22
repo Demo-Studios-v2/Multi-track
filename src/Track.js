@@ -692,7 +692,13 @@ export default class {
       );
       const cWidth = cEndX - cStartX + 1;
       const cClassName = cWidth > 1 ? ".segment" : ".point";
-
+      waveformChildren.push(
+        h(`div.selectionCUSTOMSVG`, {
+          attributes: {
+            style: `position: absolute; width: ${cWidth}px; bottom: 0; top: 0; left: ${cStartX}px; z-index: 4;`,
+          },
+        })
+      );
       waveformChildren.push(
         h(`div.selection${cClassName}`, {
           attributes: {
