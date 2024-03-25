@@ -692,6 +692,7 @@ export default class {
       );
       const cWidth = cEndX - cStartX + 1;
       const cClassName = cWidth > 1 ? ".segment" : ".point";
+      console.log(data, this)
       waveformChildren.push(
         h(`div.selectionCUSTOMSVG`, {
           attributes: {
