@@ -36,7 +36,7 @@ export default class {
     this.endTime = 0;
     this.stereoPan = 0;
 
-    console.log("Track");
+    console.log("Bits width");
   }
 
   setEventEmitter(ee) {

@@ -63,8 +63,6 @@ class TimeScale {
         secondStep: 1 / 10,
       },
     };
-
-    console.log("Lib width");
   }
 
   getScaleInfo(resolution) {
