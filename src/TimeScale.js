@@ -101,6 +101,7 @@ class TimeScale {
       this.samplesPerPixel,
       this.sampleRate
     ) + 700;
+    console.log("Width from lib", widthX);
     const pixPerSec = this.sampleRate / this.samplesPerPixel;
     const pixOffset = secondsToPixels(
       this.offset,
