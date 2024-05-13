@@ -63,6 +63,8 @@ class TimeScale {
         secondStep: 1 / 10,
       },
     };
+
+    console.log("Lib width");
   }
 
   getScaleInfo(resolution) {
@@ -100,8 +102,7 @@ class TimeScale {
       this.duration,
       this.samplesPerPixel,
       this.sampleRate
-    ) + 700;
-    console.log("Width lib", widthX);
+    );
     const pixPerSec = this.sampleRate / this.samplesPerPixel;
     const pixOffset = secondsToPixels(
       this.offset,
