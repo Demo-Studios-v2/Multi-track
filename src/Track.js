@@ -35,6 +35,8 @@ export default class {
     this.startTime = 0;
     this.endTime = 0;
     this.stereoPan = 0;
+
+    console.log("Track");
   }
 
   setEventEmitter(ee) {
