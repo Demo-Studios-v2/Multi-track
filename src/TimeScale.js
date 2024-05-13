@@ -100,7 +100,7 @@ class TimeScale {
       this.duration,
       this.samplesPerPixel,
       this.sampleRate
-    );
+    ) + 700;
     const pixPerSec = this.sampleRate / this.samplesPerPixel;
     const pixOffset = secondsToPixels(
       this.offset,
