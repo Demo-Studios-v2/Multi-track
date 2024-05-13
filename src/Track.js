@@ -36,7 +36,7 @@ export default class {
     this.endTime = 0;
     this.stereoPan = 0;
 
-    console.log("Bits width");
+    console.log("Bits width test");
   }
 
   setEventEmitter(ee) {
