@@ -517,7 +517,7 @@ export default class {
   }
 
   render(data) {
-    const width = this.peaks.length;
+    const width = this.peaks.length + 700;
     const playbackX = secondsToPixels(
       data.playbackSeconds,
       data.resolution,
