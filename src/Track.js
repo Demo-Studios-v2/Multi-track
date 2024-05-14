@@ -188,6 +188,7 @@ export default class {
       cueIn,
       cueOut
     );
+
     this.setPeaks(
       extractPeaks(
         this.buffer,
@@ -526,7 +527,9 @@ export default class {
 
   render(data) {
 
-    const width = this.peaks.length + 400;
+    this.peaks.length += 400
+
+    const width = this.peaks.length;
 
     console.log('Width', width);
     console.log("Duration", this.duration);
