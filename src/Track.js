@@ -518,8 +518,7 @@ export default class {
 
   render(data) {
 
-   // const width = this.peaks.length;
-    const width = 920
+    const width = this.peaks.length;
     console.log('Width', width);
     console.log("Duration", this.duration);
     console.log("Data", data);
@@ -571,8 +570,7 @@ export default class {
         }),
       ];
       let offset = 0;
-      // let totalWidth = width;
-      let totalWidth = this.peaks.length;
+      let totalWidth = width;
       const peaks = this.peaks.data[channelNum];
 
       while (totalWidth > 0) {
