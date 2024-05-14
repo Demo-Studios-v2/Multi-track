@@ -585,6 +585,8 @@ export default class {
           ? this.waveOutlineColor
           : data.colors.waveOutlineColor;
 
+        console.log("Scale", scale);
+
         channelChildren.push(
           h("canvas", {
             attributes: {
