@@ -518,7 +518,7 @@ export default class {
 
   render(data) {
     console.count();
-    const width = this.peaks.length;
+    const width = 200;
     console.log('Width', width);
     console.log("Duration", this.duration);
     console.log("Data", data);
@@ -527,7 +527,7 @@ export default class {
       data.playbackSeconds,
       data.resolution,
       data.sampleRate
-    ) + 10;
+    );
 
     console.log("Playback X", playbackX);
     const startX = secondsToPixels(
