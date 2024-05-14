@@ -518,12 +518,11 @@ export default class {
 
   render(data) {
     console.count();
-    // const width = this.peaks.length;
-    const width = 400
+    const width = this.peaks.length;
     console.log('Width', width);
     console.log("Duration", this.duration);
     console.log("Data", data);
-    // const width = 920;
+
     const playbackX = secondsToPixels(
       data.playbackSeconds,
       data.resolution,
@@ -537,12 +536,12 @@ export default class {
       data.sampleRate
     );
     console.log("Start x", startX);
-    // const endX = secondsToPixels(
-    //   this.endTime,
-    //   data.resolution,
-    //   data.sampleRate
-    // );
-    const endX = 920
+    const endX = secondsToPixels(
+      this.endTime,
+      data.resolution,
+      data.sampleRate
+    );
+    console.log("EndX",endX);
     let progressWidth = 0;
     const numChan = this.peaks.data.length;
     console.log("NumChan", numChan);
@@ -563,6 +562,8 @@ export default class {
         },
       }),
     ];
+
+    console.log("Peaks", this.peaks);
 
     const channels = Object.keys(this.peaks.data).map((channelNum) => {
       const channelChildren = [
