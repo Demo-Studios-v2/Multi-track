@@ -517,8 +517,13 @@ export default class {
   }
 
   render(data) {
-    console.count();
-    const width = this.peaks.length;
+
+    const fullWidth = 920;
+    const durationInSeconds = this.endTime - this.startTime;
+    const pixelsPerSecond = fullWidth / durationInSeconds;
+    const width = this.peaks.length * pixelsPerSecond;
+
+    // const width = this.peaks.length;
     console.log('Width', width);
     console.log("Duration", this.duration);
     console.log("Data", data);
