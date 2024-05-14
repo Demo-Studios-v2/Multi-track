@@ -517,12 +517,13 @@ export default class {
   }
 
   render(data) {
-    const width = this.peaks.length + 700;
+
+    const width = this.peaks.length + 200;
     const playbackX = secondsToPixels(
       data.playbackSeconds,
       data.resolution,
       data.sampleRate
-    );
+    ) + 200;
     const startX = secondsToPixels(
       this.startTime,
       data.resolution,
@@ -532,7 +533,7 @@ export default class {
       this.endTime,
       data.resolution,
       data.sampleRate
-    );
+    ) + 200;
     let progressWidth = 0;
     const numChan = this.peaks.data.length;
     const scale = Math.ceil(window.devicePixelRatio);
