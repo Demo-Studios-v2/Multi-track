@@ -518,7 +518,7 @@ export default class {
 
   render(data) {
 
-    const width = this.peaks.length;
+    const width = this.peaks.length + 400;
 
     console.log('Width', width);
     console.log("Duration", this.duration);
@@ -541,7 +541,7 @@ export default class {
       this.endTime,
       data.resolution,
       data.sampleRate
-    );
+    )  + 400;
     console.log("EndX",endX);
     let progressWidth = 0;
     const numChan = this.peaks.data.length;
