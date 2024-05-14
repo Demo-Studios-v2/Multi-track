@@ -571,7 +571,8 @@ export default class {
         }),
       ];
       let offset = 0;
-      let totalWidth = width;
+      // let totalWidth = width;
+      let totalWidth = this.peaks.length;
       const peaks = this.peaks.data[channelNum];
 
       while (totalWidth > 0) {
