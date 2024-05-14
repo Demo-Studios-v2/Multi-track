@@ -527,9 +527,7 @@ export default class {
 
   render(data) {
 
-    this.peaks.length += 400
-
-    const width = this.peaks.length;
+    const width = this.peaks.length + 400;
 
     console.log('Width', width);
     console.log("Duration", this.duration);
