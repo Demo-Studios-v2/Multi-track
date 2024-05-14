@@ -518,22 +518,24 @@ export default class {
 
   render(data) {
 
-    const width = this.peaks.length + 200;
+   // const width = this.peaks.length;
+    const width = 920;
     const playbackX = secondsToPixels(
       data.playbackSeconds,
       data.resolution,
       data.sampleRate
-    ) + 200;
+    );
     const startX = secondsToPixels(
       this.startTime,
       data.resolution,
       data.sampleRate
     );
-    const endX = secondsToPixels(
-      this.endTime,
-      data.resolution,
-      data.sampleRate
-    ) + 200;
+    // const endX = secondsToPixels(
+    //   this.endTime,
+    //   data.resolution,
+    //   data.sampleRate
+    // );
+    const endX = 920
     let progressWidth = 0;
     const numChan = this.peaks.data.length;
     const scale = Math.ceil(window.devicePixelRatio);
