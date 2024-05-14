@@ -518,7 +518,8 @@ export default class {
 
   render(data) {
     console.count();
-    const width = 200;
+    // const width = this.peaks.length;
+    const width = 400
     console.log('Width', width);
     console.log("Duration", this.duration);
     console.log("Data", data);
@@ -544,6 +545,7 @@ export default class {
     const endX = 920
     let progressWidth = 0;
     const numChan = this.peaks.data.length;
+    console.log("NumChan", numChan);
     const scale = Math.ceil(window.devicePixelRatio);
 
     if (playbackX > 0 && playbackX > startX) {
