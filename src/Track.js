@@ -518,12 +518,8 @@ export default class {
 
   render(data) {
 
-    const fullWidth = 920;
-    const durationInSeconds = this.endTime - this.startTime;
-    const pixelsPerSecond = fullWidth / durationInSeconds;
-    const width = this.peaks.length * pixelsPerSecond;
+    const width = this.peaks.length;
 
-    // const width = this.peaks.length;
     console.log('Width', width);
     console.log("Duration", this.duration);
     console.log("Data", data);
@@ -571,6 +567,7 @@ export default class {
     console.log("Peaks", this.peaks);
 
     const channels = Object.keys(this.peaks.data).map((channelNum) => {
+      console.count("channels");
       const channelChildren = [
         h("div.channel-progress", {
           attributes: {
