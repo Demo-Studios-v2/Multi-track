@@ -520,6 +520,8 @@ export default class {
 
    const width = this.peaks.length;
     console.log('Width', width);
+    console.log("Duration", this.duration);
+    console.log("Samples per pixel", data.samplesPerPixel);
     // const width = 920;
     const playbackX = secondsToPixels(
       data.playbackSeconds,
