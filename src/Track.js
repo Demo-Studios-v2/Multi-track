@@ -527,7 +527,7 @@ export default class {
       data.playbackSeconds,
       data.resolution,
       data.sampleRate
-    );
+    ) + 10;
 
     console.log("Playback X", playbackX);
     const startX = secondsToPixels(
