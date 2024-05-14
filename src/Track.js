@@ -525,11 +525,13 @@ export default class {
       data.resolution,
       data.sampleRate
     );
+    console.log("Playback X", playbackX);
     const startX = secondsToPixels(
       this.startTime,
       data.resolution,
       data.sampleRate
     );
+    console.log("Start x", startX);
     // const endX = secondsToPixels(
     //   this.endTime,
     //   data.resolution,
