@@ -518,8 +518,9 @@ export default class {
 
   render(data) {
 
-   // const width = this.peaks.length;
-    const width = 920;
+   const width = this.peaks.length;
+    console.log('Width', width);
+    // const width = 920;
     const playbackX = secondsToPixels(
       data.playbackSeconds,
       data.resolution,
