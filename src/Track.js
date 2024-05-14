@@ -585,6 +585,7 @@ export default class {
           ? this.waveOutlineColor
           : data.colors.waveOutlineColor;
 
+        console.log("Current width", currentWidth);
         console.log("Scale", scale);
 
         channelChildren.push(
