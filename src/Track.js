@@ -187,13 +187,15 @@ export default class {
       cueIn,
       cueOut);
 
+    this.buffer.length =  this.buffer.length * 2
+
     this.setPeaks(
       extractPeaks(
         this.buffer,
         samplesPerPixel,
         this.peakData.mono,
         cueIn,
-        cueOut * 2
+        cueOut
       )
     );
   }
