@@ -528,8 +528,9 @@ export default class {
 
   render(data) {
 
-    const width = data.resolution === 16384 ? 920 : this.peaks.length;
+    // const width = data.resolution === 16384 ? 920 : this.peaks.length;
 
+    const width = this.peaks.length
     console.log('Width', width);
     console.log("Duration", this.duration);
     console.log("Data", data);
@@ -590,8 +591,6 @@ export default class {
       const peaks = this.peaks.data[channelNum];
 
       while (totalWidth > 0) {
-
-        if(totalWidth === totalWidth - this.peaks.length && data.resolution === 16384) break;
 
         const currentWidth = Math.min(totalWidth, MAX_CANVAS_WIDTH);
         const canvasColor = this.waveOutlineColor
