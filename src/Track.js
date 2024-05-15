@@ -187,10 +187,12 @@ export default class {
       cueIn,
       cueOut);
 
+    let spp = samplesPerPixel === 16384 ? samplesPerPixel / 5 : samplesPerPixel
+
     this.setPeaks(
       extractPeaks(
         this.buffer,
-        samplesPerPixel / 4,
+        spp,
         this.peakData.mono,
         cueIn,
         cueOut
