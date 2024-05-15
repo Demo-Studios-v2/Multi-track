@@ -180,7 +180,8 @@ export default class {
     const cueIn = secondsToSamples(this.cueIn, sampleRate);
     const cueOut = secondsToSamples(this.cueOut, sampleRate);
 
-    console.log("Peaks before extraction",         this.buffer,
+    console.log("Peaks before extraction",
+      this.buffer,
       samplesPerPixel,
       this.peakData.mono,
       cueIn,
@@ -192,7 +193,7 @@ export default class {
         samplesPerPixel,
         this.peakData.mono,
         cueIn,
-        cueOut
+        cueOut * 2
       )
     );
   }
