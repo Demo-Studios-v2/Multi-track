@@ -528,7 +528,7 @@ export default class {
 
   render(data) {
 
-    const width = 300;
+    const width = data.resolution === 16384 ? 920 : this.peaks.length;
 
     console.log('Width', width);
     console.log("Duration", this.duration);
