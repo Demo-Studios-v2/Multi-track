@@ -714,12 +714,11 @@ export default class {
         data.resolution,
         data.sampleRate
       );
-      const cEndX = width
-      // const cEndX = secondsToPixels(
-      //   data.timeSelection.end,
-      //   data.resolution,
-      //   data.sampleRate
-      // );
+      const cEndX = secondsToPixels(
+        data.timeSelection.end,
+        data.resolution,
+        data.sampleRate
+      );
       const cWidth = cEndX - cStartX + 1;
       const cClassName = cWidth > 1 ? ".segment" : ".point";
 
