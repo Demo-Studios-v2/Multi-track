@@ -190,7 +190,7 @@ export default class {
     this.setPeaks(
       extractPeaks(
         this.buffer,
-        samplesPerPixel / 2,
+        samplesPerPixel / 4,
         this.peakData.mono,
         cueIn,
         cueOut
