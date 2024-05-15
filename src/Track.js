@@ -590,6 +590,9 @@ export default class {
       const peaks = this.peaks.data[channelNum];
 
       while (totalWidth > 0) {
+
+        if(totalWidth === totalWidth - this.peaks.length && data.resolution === 16384) break;
+
         const currentWidth = Math.min(totalWidth, MAX_CANVAS_WIDTH);
         const canvasColor = this.waveOutlineColor
           ? this.waveOutlineColor
