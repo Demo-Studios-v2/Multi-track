@@ -40,7 +40,8 @@ class CanvasHook {
     }
 
     const scale = this.scale;
-    const len = canvas.width / scale + 200;
+    const len = (canvas.width / scale) + 200;
+    console.log("len", len);
     const cc = canvas.getContext("2d");
     const h2 = canvas.height / scale / 2;
     const maxValue = 2 ** (this.bits - 1);
