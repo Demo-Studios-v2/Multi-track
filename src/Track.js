@@ -710,6 +710,7 @@ export default class {
 
     // draw cursor selection on active track.
     if (data.isActive === true) {
+      console.count()
       const cStartX = secondsToPixels(
         data.timeSelection.start,
         data.resolution,
