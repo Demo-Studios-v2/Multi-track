@@ -538,7 +538,7 @@ export default class {
       data.playbackSeconds,
       data.resolution,
       data.sampleRate
-    );
+    ) + 10;
 
     console.log("Playback X", playbackX);
     const startX = secondsToPixels(
@@ -723,7 +723,7 @@ export default class {
         data.sampleRate
       );
       console.log("cursor end", cEndX);
-      const cWidth = cEndX - cStartX + 100;
+      const cWidth = cEndX - cStartX + 1;
       console.log("cursor width", cWidth);
       const cClassName = cWidth > 1 ? ".segment" : ".point";
 
