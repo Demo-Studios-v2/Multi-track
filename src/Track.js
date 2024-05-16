@@ -547,11 +547,12 @@ export default class {
       data.sampleRate
     );
     console.log("Start x", startX);
-    const endX = secondsToPixels(
-      this.endTime,
-      data.resolution,
-      data.sampleRate
-    )  + 400;
+    const endX = 920
+    // secondsToPixels(
+    //       this.endTime,
+    //       data.resolution,
+    //       data.sampleRate
+    //     );
     console.log("EndX",endX);
     let progressWidth = 0;
     const numChan = this.peaks.data.length;
@@ -709,7 +710,7 @@ export default class {
     waveformChildren.push(this.renderOverlay(data));
 
     // draw cursor selection on active track.
-    if (data.isActive === true || data.resolution === 16384) {
+    if (data.resolution === 16384 || data.isActive === true) {
       console.count("cursor")
       const cStartX = secondsToPixels(
         data.timeSelection.start,
