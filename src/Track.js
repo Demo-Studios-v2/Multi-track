@@ -547,12 +547,11 @@ export default class {
       data.sampleRate
     );
     console.log("Start x", startX);
-    const endX = 920
-    // secondsToPixels(
-    //       this.endTime,
-    //       data.resolution,
-    //       data.sampleRate
-    //     );
+    const endX = secondsToPixels(
+          this.endTime,
+          data.resolution,
+          data.sampleRate
+        );
     console.log("EndX",endX);
     let progressWidth = 0;
     const numChan = this.peaks.data.length;
