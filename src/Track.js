@@ -709,7 +709,7 @@ export default class {
     waveformChildren.push(this.renderOverlay(data));
 
     // draw cursor selection on active track.
-    if (data.isActive === true) {
+    if (data.isActive === true || data.resolution === 16384) {
       console.count("cursor")
       const cStartX = secondsToPixels(
         data.timeSelection.start,
