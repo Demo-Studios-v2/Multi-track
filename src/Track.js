@@ -537,8 +537,10 @@ export default class {
     const playbackX = secondsToPixels(
       data.playbackSeconds,
       data.resolution,
-      data.sampleRate
+      232000
     );
+
+    // data.sampleRate
 
     console.log("Playback X", playbackX);
     const startX = secondsToPixels(
