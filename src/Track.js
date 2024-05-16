@@ -723,7 +723,7 @@ export default class {
         data.sampleRate
       );
       console.log("cursor end", cEndX);
-      const cWidth = cEndX - cStartX + 1;
+      const cWidth = cEndX - cStartX + 5;
       console.log("cursor width", cWidth);
       const cClassName = cWidth > 1 ? ".segment" : ".point";
 
