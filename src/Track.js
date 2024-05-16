@@ -710,18 +710,21 @@ export default class {
 
     // draw cursor selection on active track.
     if (data.isActive === true) {
-      console.count()
+      console.count("cursor")
       const cStartX = secondsToPixels(
         data.timeSelection.start,
         data.resolution,
         data.sampleRate
       );
+      console.log("Cursor start", cStartX);
       const cEndX = secondsToPixels(
         data.timeSelection.end,
         data.resolution,
         data.sampleRate
       );
+      console.log("cursor end", cEndX);
       const cWidth = cEndX - cStartX + 1;
+      console.log("cursor width", cWidth);
       const cClassName = cWidth > 1 ? ".segment" : ".point";
 
       waveformChildren.push(
