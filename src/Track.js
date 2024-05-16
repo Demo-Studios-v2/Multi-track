@@ -538,7 +538,7 @@ export default class {
       data.playbackSeconds,
       data.resolution,
       data.sampleRate
-    ) + 100;
+    );
 
     console.log("Playback X", playbackX);
     const startX = secondsToPixels(
@@ -551,7 +551,7 @@ export default class {
           this.endTime,
           data.resolution,
           data.sampleRate
-        );
+        ) + 500;
     console.log("EndX",endX);
     let progressWidth = 0;
     const numChan = this.peaks.data.length;
