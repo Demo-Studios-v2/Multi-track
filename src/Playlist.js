@@ -1,21 +1,21 @@
 import _defaults from "lodash.defaultsdeep";
 
-import h from "virtual-dom/h";
-import diff from "virtual-dom/diff";
-import patch from "virtual-dom/patch";
 import InlineWorker from "inline-worker";
+import diff from "virtual-dom/diff";
+import h from "virtual-dom/h";
+import patch from "virtual-dom/patch";
 
-import { pixelsToSeconds } from "./utils/conversions";
-import { resampleAudioBuffer } from "./utils/audioData";
-import LoaderFactory from "./track/loader/LoaderFactory";
-import ScrollHook from "./render/ScrollHook";
+import Playout from "./Playout";
 import TimeScale from "./TimeScale";
 import Track from "./Track";
-import Playout from "./Playout";
 import AnnotationList from "./annotation/AnnotationList";
+import ScrollHook from "./render/ScrollHook";
+import LoaderFactory from "./track/loader/LoaderFactory";
+import { resampleAudioBuffer } from "./utils/audioData";
+import { pixelsToSeconds } from "./utils/conversions";
 
-import RecorderWorkerFunction from "./utils/recorderWorker";
 import ExportWavWorkerFunction from "./utils/exportWavWorker";
+import RecorderWorkerFunction from "./utils/recorderWorker";
 
 export default class {
   constructor() {
@@ -516,11 +516,8 @@ export default class {
     }
 
     this.isRendering = true;
-    this.offlineAudioContext = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(
-      2,
-      44100 * this.duration,
-      44100
-    );
+    this.offlineAudioContext = new (window.OfflineAudioContext ||
+      window.webkitOfflineAudioContext)(2, 44100 * this.duration, 44100);
 
     const setUpChain = [];
 
@@ -749,7 +746,8 @@ export default class {
     const selected = this.getTimeSelection();
     const playoutPromises = [];
 
-    const start = (startTime === 0) ? 0 : (startTime || this.pausedAt || this.cursor);
+    const start =
+      startTime === 0 ? 0 : startTime || this.pausedAt || this.cursor;
     let end = endTime;
 
     if (!end && selected.end !== selected.start && selected.end > start) {
@@ -964,7 +962,7 @@ export default class {
       isActive: false,
       timeSelection: this.getTimeSelection(),
       playlistLength: this.duration,
-      playbackSeconds: this.playbackSeconds,
+      playbackSeconds: this.isPlaying() ? this.playbackSeconds : this.pausedAt,
       colors: this.colors,
       barWidth: this.barWidth,
       barGap: this.barGap,
