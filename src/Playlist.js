@@ -390,85 +390,87 @@ export default class {
     });
 
     return Promise.all(loadPromises)
-      .then((audioBuffers) => {
+      .then(async (audioBuffers) => {
         this.ee.emit("audiosourcesloaded");
 
-        const tracks = audioBuffers.map((audioBuffer, index) => {
-          const info = trackList[index];
-          const name = info.name || "Untitled";
-          const start = info.start || 0;
-          const states = info.states || {};
-          const fadeIn = info.fadeIn;
-          const fadeOut = info.fadeOut;
-          const cueIn = info.cuein || 0;
-          const cueOut = info.cueout || audioBuffer.duration;
-          const gain = info.gain || 1;
-          const muted = info.muted || false;
-          const soloed = info.soloed || false;
-          const selection = info.selected;
-          const peaks = info.peaks || { type: "WebAudio", mono: this.mono };
-          const customClass = info.customClass || undefined;
-          const waveOutlineColor = info.waveOutlineColor || undefined;
-          const stereoPan = info.stereoPan || 0;
-          const effects = info.effects || null;
+        const tracks = await Promise.all(
+          audioBuffers.map(async (audioBuffer, index) => {
+            const info = trackList[index];
+            const name = info.name || "Untitled";
+            const start = info.start || 0;
+            const states = info.states || {};
+            const fadeIn = info.fadeIn;
+            const fadeOut = info.fadeOut;
+            const cueIn = info.cuein || 0;
+            const cueOut = info.cueout || audioBuffer.duration;
+            const gain = info.gain || 1;
+            const muted = info.muted || false;
+            const soloed = info.soloed || false;
+            const selection = info.selected;
+            const peaks = info.peaks || { type: "WebAudio", mono: this.mono };
+            const customClass = info.customClass || undefined;
+            const waveOutlineColor = info.waveOutlineColor || undefined;
+            const stereoPan = info.stereoPan || 0;
+            const effects = info.effects || null;
 
-          // webaudio specific playout for now.
-          const playout = new Playout(
-            this.ac,
-            audioBuffer,
-            this.masterGainNode
-          );
+            // webaudio specific playout for now.
+            const playout = new Playout(
+              this.ac,
+              audioBuffer,
+              this.masterGainNode
+            );
 
-          const track = new Track();
-          track.src = info.src;
-          track.setBuffer(audioBuffer);
-          track.setName(name);
-          track.setEventEmitter(this.ee);
-          track.setEnabledStates(states);
-          track.setCues(cueIn, cueOut);
-          track.setCustomClass(customClass);
-          track.setWaveOutlineColor(waveOutlineColor);
+            const track = new Track();
+            track.src = info.src;
+            track.setBuffer(audioBuffer);
+            track.setName(name);
+            track.setEventEmitter(this.ee);
+            track.setEnabledStates(states);
+            track.setCues(cueIn, cueOut);
+            track.setCustomClass(customClass);
+            track.setWaveOutlineColor(waveOutlineColor);
 
-          if (fadeIn !== undefined) {
-            track.setFadeIn(fadeIn.duration, fadeIn.shape);
-          }
+            if (fadeIn !== undefined) {
+              track.setFadeIn(fadeIn.duration, fadeIn.shape);
+            }
 
-          if (fadeOut !== undefined) {
-            track.setFadeOut(fadeOut.duration, fadeOut.shape);
-          }
+            if (fadeOut !== undefined) {
+              track.setFadeOut(fadeOut.duration, fadeOut.shape);
+            }
 
-          if (selection !== undefined) {
-            this.setActiveTrack(track);
-            this.setTimeSelection(selection.start, selection.end);
-          }
+            if (selection !== undefined) {
+              this.setActiveTrack(track);
+              this.setTimeSelection(selection.start, selection.end);
+            }
 
-          if (peaks !== undefined) {
-            track.setPeakData(peaks);
-          }
+            if (peaks !== undefined) {
+              track.setPeakData(peaks);
+            }
 
-          track.setState(this.getState());
-          track.setStartTime(start);
-          track.setPlayout(playout);
+            track.setState(this.getState());
+            track.setStartTime(start);
+            track.setPlayout(playout);
 
-          track.setGainLevel(gain);
-          track.setStereoPanValue(stereoPan);
-          if (effects) {
-            track.setEffects(effects);
-          }
+            track.setGainLevel(gain);
+            track.setStereoPanValue(stereoPan);
+            if (effects) {
+              track.setEffects(effects);
+            }
 
-          if (muted) {
-            this.muteTrack(track);
-          }
+            if (muted) {
+              this.muteTrack(track);
+            }
 
-          if (soloed) {
-            this.soloTrack(track);
-          }
+            if (soloed) {
+              this.soloTrack(track);
+            }
+            await track.calculatePeaksPerZoom(this.zoomLevels, this.sampleRate);
+            // extract peaks with AudioContext for now.
+            track.calculatePeaks(this.samplesPerPixel, this.sampleRate);
 
-          // extract peaks with AudioContext for now.
-          track.calculatePeaks(this.samplesPerPixel, this.sampleRate);
-
-          return track;
-        });
+            return track;
+          })
+        );
 
         this.tracks = this.tracks.concat(tracks);
         this.adjustDuration();

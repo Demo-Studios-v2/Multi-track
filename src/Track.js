@@ -4,17 +4,17 @@ import _forOwn from "lodash.forown";
 import { v4 as uuidv4 } from "uuid";
 import h from "virtual-dom/h";
 
-import extractPeaks from "webaudio-peaks";
 import { FADEIN, FADEOUT } from "fade-maker";
+import extractPeaks from "webaudio-peaks";
 
-import { secondsToPixels, secondsToSamples } from "./utils/conversions";
 import stateClasses from "./track/states";
+import { secondsToPixels, secondsToSamples } from "./utils/conversions";
 
+import ExtractPeaksTask from "./ExtractPeaksTask";
 import CanvasHook from "./render/CanvasHook";
 import FadeCanvasHook from "./render/FadeCanvasHook";
-import VolumeSliderHook from "./render/VolumeSliderHook";
 import StereoPanSliderHook from "./render/StereoPanSliderHook";
-
+import VolumeSliderHook from "./render/VolumeSliderHook";
 const MAX_CANVAS_WIDTH = 1000;
 
 export default class {
@@ -28,6 +28,7 @@ export default class {
       type: "WebAudio",
       mono: false,
     };
+    this.peakDataPerZoom = {};
 
     this.cueIn = 0;
     this.cueOut = 0;
@@ -177,15 +178,26 @@ export default class {
   calculatePeaks(samplesPerPixel, sampleRate) {
     const cueIn = secondsToSamples(this.cueIn, sampleRate);
     const cueOut = secondsToSamples(this.cueOut, sampleRate);
-
     this.setPeaks(
-      extractPeaks(
-        this.buffer,
-        samplesPerPixel,
-        this.peakData.mono,
-        cueIn,
-        cueOut
-      )
+      this.peakDataPerZoom[samplesPerPixel] ||
+        extractPeaks(
+          this.buffer,
+          samplesPerPixel,
+          this.peakData.mono,
+          cueIn,
+          cueOut
+        )
+    );
+  }
+  async calculatePeaksPerZoom(samplesPerPixelArray, sampleRate) {
+    const cueIn = secondsToSamples(this.cueIn, sampleRate);
+    const cueOut = secondsToSamples(this.cueOut, sampleRate);
+    this.peakDataPerZoom = await ExtractPeaksTask(
+      this.buffer,
+      samplesPerPixelArray,
+      this.peakData.mono,
+      cueIn,
+      cueOut
     );
   }
 
