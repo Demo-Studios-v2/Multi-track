@@ -35,6 +35,8 @@ export default class {
     this.startTime = 0;
     this.endTime = 0;
     this.stereoPan = 0;
+
+    console.log("Bits width");
   }
 
   setEventEmitter(ee) {
@@ -178,10 +180,19 @@ export default class {
     const cueIn = secondsToSamples(this.cueIn, sampleRate);
     const cueOut = secondsToSamples(this.cueOut, sampleRate);
 
+    console.log("Peaks before extraction",
+      this.buffer,
+      samplesPerPixel,
+      this.peakData.mono,
+      cueIn,
+      cueOut);
+
+    let spp = samplesPerPixel === 16384 ? samplesPerPixel / 5 : samplesPerPixel
+
     this.setPeaks(
       extractPeaks(
         this.buffer,
-        samplesPerPixel,
+        spp,
         this.peakData.mono,
         cueIn,
         cueOut
@@ -190,6 +201,7 @@ export default class {
   }
 
   setPeaks(peaks) {
+    console.log("Peaks", peaks);
     this.peaks = peaks;
   }
 
@@ -515,24 +527,37 @@ export default class {
   }
 
   render(data) {
-    const width = this.peaks.length;
+
+    const width = data.resolution === 16384 ? 920 : this.peaks.length;
+
+    console.log('Width', width);
+    console.log("Duration", this.duration);
+    console.log("Data", data);
+
     const playbackX = secondsToPixels(
       data.playbackSeconds,
       data.resolution,
-      data.sampleRate
+      232000
     );
+
+    // data.sampleRate
+
+    console.log("Playback X", playbackX);
     const startX = secondsToPixels(
       this.startTime,
       data.resolution,
       data.sampleRate
     );
+    console.log("Start x", startX);
     const endX = secondsToPixels(
-      this.endTime,
-      data.resolution,
-      data.sampleRate
-    );
+          this.endTime,
+          data.resolution,
+          data.sampleRate
+        ) + 500;
+    console.log("EndX",endX);
     let progressWidth = 0;
     const numChan = this.peaks.data.length;
+    console.log("NumChan", numChan);
     const scale = Math.ceil(window.devicePixelRatio);
 
     if (playbackX > 0 && playbackX > startX) {
@@ -551,7 +576,10 @@ export default class {
       }),
     ];
 
+    console.log("Peaks", this.peaks);
+
     const channels = Object.keys(this.peaks.data).map((channelNum) => {
+      console.count("channels");
       const channelChildren = [
         h("div.channel-progress", {
           attributes: {
@@ -564,10 +592,14 @@ export default class {
       const peaks = this.peaks.data[channelNum];
 
       while (totalWidth > 0) {
+
         const currentWidth = Math.min(totalWidth, MAX_CANVAS_WIDTH);
         const canvasColor = this.waveOutlineColor
           ? this.waveOutlineColor
           : data.colors.waveOutlineColor;
+
+        console.log("Current width", currentWidth);
+        console.log("Scale", scale);
 
         channelChildren.push(
           h("canvas", {
@@ -679,18 +711,22 @@ export default class {
     waveformChildren.push(this.renderOverlay(data));
 
     // draw cursor selection on active track.
-    if (data.isActive === true) {
+    if (data.resolution === 16384 || data.isActive === true) {
+      console.count("cursor")
       const cStartX = secondsToPixels(
         data.timeSelection.start,
         data.resolution,
         data.sampleRate
       );
+      console.log("Cursor start", cStartX);
       const cEndX = secondsToPixels(
         data.timeSelection.end,
         data.resolution,
         data.sampleRate
       );
+      console.log("cursor end", cEndX);
       const cWidth = cEndX - cStartX + 1;
+      console.log("cursor width", cWidth);
       const cClassName = cWidth > 1 ? ".segment" : ".point";
 
       waveformChildren.push(

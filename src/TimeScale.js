@@ -155,7 +155,7 @@ class TimeScale {
         h("canvas", {
           attributes: {
             width: widthX,
-            height: 30,
+            height: 60,
             style: "position: absolute; left: 0; right: 0; top: 0; bottom: 0;",
           },
           hook: new TimeScaleHook(
