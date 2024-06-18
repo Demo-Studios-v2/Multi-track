@@ -464,7 +464,7 @@ export default class {
             if (soloed) {
               this.soloTrack(track);
             }
-            await track.calculatePeaksPerZoom(this.zoomLevels, this.sampleRate);
+            track.calculatePeaksPerZoom(this.zoomLevels, this.sampleRate);
             // extract peaks with AudioContext for now.
             track.calculatePeaks(this.samplesPerPixel, this.sampleRate);
 
