@@ -94,16 +94,18 @@ export default class {
     this.fadeGain.connect(this.volumeGain);
     this.volumeGain.connect(this.shouldPlayGain);
     this.shouldPlayGain.connect(this.panner);
-
+    this.panner.connect(this.destination);
     cleanupEffects = this.effectsGraph(
       this.panner,
       this.masterGain,
-      this.ac instanceof (window.OfflineAudioContext || window.webkitOfflineAudioContext)
+      this.ac instanceof
+        (window.OfflineAudioContext || window.webkitOfflineAudioContext)
     );
     cleanupMasterEffects = this.masterEffectsGraph(
       this.masterGain,
       this.destination,
-      this.ac instanceof (window.OfflineAudioContext || window.webkitOfflineAudioContext)
+      this.ac instanceof
+        (window.OfflineAudioContext || window.webkitOfflineAudioContext)
     );
 
     return sourcePromise;
