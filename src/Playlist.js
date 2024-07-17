@@ -811,7 +811,7 @@ export default class {
     });
 
     // TODO improve this.
-    this.masterGainNode.disconnect();
+    //this.masterGainNode.disconnect();
     this.drawRequest();
     return Promise.all(this.playoutPromises);
   }

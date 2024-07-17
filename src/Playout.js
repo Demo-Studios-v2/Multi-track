@@ -68,7 +68,7 @@ export default class {
         this.volumeGain.disconnect();
         this.shouldPlayGain.disconnect();
         this.panner.disconnect();
-        // this.masterGain.disconnect();
+        this.masterGain.disconnect();
 
         if (cleanupEffects) cleanupEffects();
         if (cleanupMasterEffects) cleanupMasterEffects();
@@ -94,7 +94,6 @@ export default class {
     this.fadeGain.connect(this.volumeGain);
     this.volumeGain.connect(this.shouldPlayGain);
     this.shouldPlayGain.connect(this.panner);
-    this.panner.connect(this.destination);
     cleanupEffects = this.effectsGraph(
       this.panner,
       this.masterGain,
