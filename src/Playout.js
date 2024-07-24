@@ -63,12 +63,12 @@ export default class {
     const sourcePromise = new Promise((resolve) => {
       // keep track of the buffer state.
       this.source.onended = () => {
-        this.source.disconnect();
-        this.fadeGain.disconnect();
-        this.volumeGain.disconnect();
-        this.shouldPlayGain.disconnect();
-        this.panner.disconnect();
-        this.masterGain.disconnect();
+        this.source && this.source.disconnect();
+        this.fadeGain && this.fadeGain.disconnect();
+        this.volumeGain && this.volumeGain.disconnect();
+        this.shouldPlayGain && this.shouldPlayGain.disconnect();
+        this.panner && this.panner.disconnect();
+        this.masterGain && this.masterGain.disconnect();
 
         if (cleanupEffects) cleanupEffects();
         if (cleanupMasterEffects) cleanupMasterEffects();
