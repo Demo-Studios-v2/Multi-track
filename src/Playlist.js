@@ -1037,21 +1037,21 @@ export default class {
         h("div", {
           style: ` width: 3px;height: ${
             this.waveHeight / 6
-          }px;background: white;opacity: 0.8;border-radius: 45%;visibility: ${
+          }px;background: white;opacity: 0.8;border-radius: 37%;visibility: ${
             this.intervalCounter % 3 === 0 ? "visible" : "hidden"
           }`,
         }),
         h("div", {
           style: ` width: 3px;height: ${
             this.waveHeight / 4
-          }px;background: white;opacity: 0.8;border-radius: 45%;visibility: ${
+          }px;background: white;opacity: 0.8;border-radius: 37%;visibility: ${
             this.intervalCounter % 3 === 1 ? "visible" : "hidden"
           }`,
         }),
         h("div", {
           style: ` width: 3px;height: ${
             this.waveHeight / 2
-          }px;background:white;opacity: 0.8;border-radius: 45%;visibility: ${
+          }px;background:white;opacity: 0.8;border-radius: 37%;visibility: ${
             this.intervalCounter % 3 === 2 ? "visible" : "hidden"
           }`,
         }),
