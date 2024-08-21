@@ -744,7 +744,7 @@ export default class {
         attributes: {
           style: `margin-left: ${channelMargin}px; height: ${
             data.height * numChan
-          }px;`,
+          }px; content-visibility: auto;`,
         },
       },
       channelChildren

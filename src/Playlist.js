@@ -16,9 +16,13 @@ import { pixelsToSeconds } from "./utils/conversions";
 
 import ExportWavWorkerFunction from "./utils/exportWavWorker";
 import RecorderWorkerFunction from "./utils/recorderWorker";
-
 export default class {
   constructor() {
+    this.renderInterval = undefined;
+    this.intervalCounter = 0;
+    this.totalTracks = 0;
+    this.initMutedTracks = [];
+    this.initSoloTracks = [];
     this.tracks = [];
     this.soloedTracks = [];
     this.mutedTracks = [];
@@ -182,7 +186,6 @@ export default class {
       controlWidth
     );
   }
-
   setEffects(effectsGraph) {
     this.effectsGraph = effectsGraph;
   }
@@ -265,16 +268,24 @@ export default class {
       });
     });
 
-    ee.on("solo", (track) => {
-      this.soloTrack(track);
-      this.adjustTrackPlayout();
-      this.drawRequest();
+    ee.on("solo", (trackObj) => {
+      const track = trackObj.track;
+      const index = trackObj.index;
+      this.soloTrack(track, index);
+      if (track) {
+        this.adjustTrackPlayout();
+        this.drawRequest();
+      }
     });
 
-    ee.on("mute", (track) => {
-      this.muteTrack(track);
-      this.adjustTrackPlayout();
-      this.drawRequest();
+    ee.on("mute", (trackObj) => {
+      const track = trackObj.track;
+      const index = trackObj.index;
+      this.muteTrack(track, index);
+      if (track) {
+        this.adjustTrackPlayout();
+        this.drawRequest();
+      }
     });
 
     ee.on("removeTrack", (track) => {
@@ -374,115 +385,117 @@ export default class {
   }
 
   load(trackList, handleProgress = () => {}, handleIsRendered = () => {}) {
-    const loadPromises = trackList.map((trackInfo) => {
+    if (!this.renderInterval) {
+      this.renderInterval = setInterval(() => {
+        this.intervalCounter += 1;
+        this.drawRequest();
+        console.log("interval");
+        if (this.totalTracks <= this.tracks.filter((t) => t).length) {
+          clearInterval(this.renderInterval);
+          this.renderInterval = undefined;
+        }
+      }, 250);
+    }
+    const initialLength = this.totalTracks;
+    this.totalTracks = initialLength + trackList.length;
+    const loadPromises = trackList.map((trackInfo, i) => {
       const loader = LoaderFactory.createLoader(
         trackInfo.src,
         this.ac,
         this.ee
       );
-      return loader.load(handleProgress).then((audioBuffer) => {
-        if (audioBuffer.sampleRate === this.sampleRate) {
-          return audioBuffer;
-        } else {
-          return resampleAudioBuffer(audioBuffer, this.sampleRate);
-        }
-      });
+      return loader
+        .load(handleProgress)
+        .then((audioBuffer) => {
+          if (audioBuffer.sampleRate === this.sampleRate) {
+            return audioBuffer;
+          } else {
+            return resampleAudioBuffer(audioBuffer, this.sampleRate);
+          }
+        })
+        .then((audioBuffer) => {
+          const info = trackInfo;
+          const name = info.name || "Untitled";
+          const start = info.start || 0;
+          const states = info.states || {};
+          const fadeIn = info.fadeIn;
+          const fadeOut = info.fadeOut;
+          const cueIn = info.cuein || 0;
+          const cueOut = info.cueout || audioBuffer.duration;
+          const gain = info.gain || 1;
+          const muted = info.muted || this.initMutedTracks[i] || false;
+          const soloed = info.soloed || this.initSoloTracks[i] || false;
+          const selection = info.selected;
+          const peaks = info.peaks || { type: "WebAudio", mono: this.mono };
+          const customClass = info.customClass || undefined;
+          const waveOutlineColor = info.waveOutlineColor || undefined;
+          const stereoPan = info.stereoPan || 0;
+          const effects = info.effects || null;
+
+          // webaudio specific playout for now.
+          const playout = new Playout(
+            this.ac,
+            audioBuffer,
+            this.masterGainNode
+          );
+
+          const track = new Track();
+          track.src = info.src;
+          track.setBuffer(audioBuffer);
+          track.setName(name);
+          track.setEventEmitter(this.ee);
+          track.setEnabledStates(states);
+          track.setCues(cueIn, cueOut);
+          track.setCustomClass(customClass);
+          track.setWaveOutlineColor(waveOutlineColor);
+
+          if (fadeIn !== undefined) {
+            track.setFadeIn(fadeIn.duration, fadeIn.shape);
+          }
+
+          if (fadeOut !== undefined) {
+            track.setFadeOut(fadeOut.duration, fadeOut.shape);
+          }
+
+          if (selection !== undefined) {
+            this.setActiveTrack(track);
+            this.setTimeSelection(selection.start, selection.end);
+          }
+
+          if (peaks !== undefined) {
+            track.setPeakData(peaks);
+          }
+
+          track.setState(this.getState());
+          track.setStartTime(start);
+          track.setPlayout(playout);
+
+          track.setGainLevel(gain);
+          track.setStereoPanValue(stereoPan);
+          if (effects) {
+            track.setEffects(effects);
+          }
+
+          if (muted) {
+            this.muteTrack(track);
+          }
+
+          if (soloed) {
+            this.soloTrack(track);
+          }
+          track.calculatePeaksPerZoom(this.zoomLevels, this.sampleRate);
+          // extract peaks with AudioContext for now.
+          track.calculatePeaks(this.samplesPerPixel, this.sampleRate);
+          this.tracks[i + initialLength] = track;
+          this.adjustDuration();
+          // this.drawRequest();
+
+          return track;
+        });
     });
-
-    return Promise.all(loadPromises)
-      .then(async (audioBuffers) => {
-        this.ee.emit("audiosourcesloaded");
-
-        const tracks = await Promise.all(
-          audioBuffers.map(async (audioBuffer, index) => {
-            const info = trackList[index];
-            const name = info.name || "Untitled";
-            const start = info.start || 0;
-            const states = info.states || {};
-            const fadeIn = info.fadeIn;
-            const fadeOut = info.fadeOut;
-            const cueIn = info.cuein || 0;
-            const cueOut = info.cueout || audioBuffer.duration;
-            const gain = info.gain || 1;
-            const muted = info.muted || false;
-            const soloed = info.soloed || false;
-            const selection = info.selected;
-            const peaks = info.peaks || { type: "WebAudio", mono: this.mono };
-            const customClass = info.customClass || undefined;
-            const waveOutlineColor = info.waveOutlineColor || undefined;
-            const stereoPan = info.stereoPan || 0;
-            const effects = info.effects || null;
-
-            // webaudio specific playout for now.
-            const playout = new Playout(
-              this.ac,
-              audioBuffer,
-              this.masterGainNode
-            );
-
-            const track = new Track();
-            track.src = info.src;
-            track.setBuffer(audioBuffer);
-            track.setName(name);
-            track.setEventEmitter(this.ee);
-            track.setEnabledStates(states);
-            track.setCues(cueIn, cueOut);
-            track.setCustomClass(customClass);
-            track.setWaveOutlineColor(waveOutlineColor);
-
-            if (fadeIn !== undefined) {
-              track.setFadeIn(fadeIn.duration, fadeIn.shape);
-            }
-
-            if (fadeOut !== undefined) {
-              track.setFadeOut(fadeOut.duration, fadeOut.shape);
-            }
-
-            if (selection !== undefined) {
-              this.setActiveTrack(track);
-              this.setTimeSelection(selection.start, selection.end);
-            }
-
-            if (peaks !== undefined) {
-              track.setPeakData(peaks);
-            }
-
-            track.setState(this.getState());
-            track.setStartTime(start);
-            track.setPlayout(playout);
-
-            track.setGainLevel(gain);
-            track.setStereoPanValue(stereoPan);
-            if (effects) {
-              track.setEffects(effects);
-            }
-
-            if (muted) {
-              this.muteTrack(track);
-            }
-
-            if (soloed) {
-              this.soloTrack(track);
-            }
-            track.calculatePeaksPerZoom(this.zoomLevels, this.sampleRate);
-            // extract peaks with AudioContext for now.
-            track.calculatePeaks(this.samplesPerPixel, this.sampleRate);
-
-            return track;
-          })
-        );
-
-        this.tracks = this.tracks.concat(tracks);
-        this.adjustDuration();
-        this.draw(this.render());
-
-        handleIsRendered();
-
-        this.ee.emit("audiosourcesrendered");
-      })
-      .catch((e) => {
-        this.ee.emit("audiosourceserror", e);
-      });
+    handleIsRendered();
+    this.ee.emit("audiosourcesrendered");
+    return Promise.resolve();
   }
 
   /*
@@ -619,25 +632,32 @@ export default class {
     });
   }
 
-  muteTrack(track) {
-    const index = this.mutedTracks.indexOf(track);
-
-    if (index > -1) {
-      this.mutedTracks.splice(index, 1);
+  muteTrack(track, trackIndex) {
+    if (track) {
+      const index = this.mutedTracks.indexOf(track);
+      if (index > -1) {
+        this.mutedTracks.splice(index, 1);
+      } else {
+        this.mutedTracks.push(track);
+      }
     } else {
-      this.mutedTracks.push(track);
+      this.initMutedTracks[trackIndex] = !this.initMutedTracks[trackIndex];
     }
   }
 
-  soloTrack(track) {
-    const index = this.soloedTracks.indexOf(track);
+  soloTrack(track, trackIndex) {
+    if (track) {
+      const index = this.soloedTracks.indexOf(track);
 
-    if (index > -1) {
-      this.soloedTracks.splice(index, 1);
-    } else if (this.exclSolo) {
-      this.soloedTracks = [track];
+      if (index > -1) {
+        this.soloedTracks.splice(index, 1);
+      } else if (this.exclSolo) {
+        this.soloedTracks = [track];
+      } else {
+        this.soloedTracks.push(track);
+      }
     } else {
-      this.soloedTracks.push(track);
+      this.initSoloTracks[trackIndex] = !this.initSoloTracks[trackIndex];
     }
   }
 
@@ -664,12 +684,17 @@ export default class {
       this.collapsedTracks,
       this.tracks,
     ];
+    let trackFound = false;
     trackLists.forEach((list) => {
       const index = list.indexOf(track);
       if (index > -1) {
         list.splice(index, 1);
+        trackFound = true;
       }
     });
+    if (trackFound && this.totalTracks) {
+      this.totalTracks--;
+    }
     this.adjustDuration();
   }
 
@@ -1000,23 +1025,88 @@ export default class {
 
     return timeScale.render();
   }
-
+  renderTrackLoader() {
+    return h(
+      "div",
+      {
+        style: `margin-left: ${15}px;height: ${
+          this.waveHeight
+        }px;display: flex; align-items: center; gap: 7px`,
+      },
+      [
+        h("div", {
+          style: ` width: 3px;height: ${
+            this.waveHeight / 6
+          }px;background: white;opacity: 0.8;border-radius: 45%;visibility: ${
+            this.intervalCounter % 3 === 0 ? "visible" : "hidden"
+          }`,
+        }),
+        h("div", {
+          style: ` width: 3px;height: ${
+            this.waveHeight / 4
+          }px;background: white;opacity: 0.8;border-radius: 45%;visibility: ${
+            this.intervalCounter % 3 === 1 ? "visible" : "hidden"
+          }`,
+        }),
+        h("div", {
+          style: ` width: 3px;height: ${
+            this.waveHeight / 2
+          }px;background:white;opacity: 0.8;border-radius: 45%;visibility: ${
+            this.intervalCounter % 3 === 2 ? "visible" : "hidden"
+          }`,
+        }),
+        // h("div", {
+        //   style: ` width: 2px;height: ${
+        //     (Math.random() * this.waveHeight) / 2
+        //   }px;background: white;opacity: 0.8;border-radius: 25%;`,
+        // }),
+        // h("div", {
+        //   style: ` width: 2px;height: ${
+        //     (Math.random() * this.waveHeight) / 2
+        //   }px;background: white;opacity: 0.8;border-radius: 25%`,
+        // }),
+        // h("div", {
+        //   style: ` width: 2px;height: ${
+        //     (Math.random() * this.waveHeight) / 2
+        //   }px;background:white;opacity: 0.8;border-radius: 25%`,
+        // }),
+        // h(
+        //   "div",
+        //   {
+        //     style: `margin-left: ${5}px;height: 100%;color: white;align-content: center;font-size: 100%;`,
+        //   },
+        //   ["Stem Loading"]
+        // ),
+      ]
+    );
+  }
   renderTrackSection() {
-    const trackElements = this.tracks.map((track) => {
-      const collapsed = this.collapsedTracks.indexOf(track) > -1;
-      return track.render(
-        this.getTrackRenderData({
-          isActive: this.isActiveTrack(track),
-          shouldPlay: this.shouldTrackPlay(track),
-          soloed: this.soloedTracks.indexOf(track) > -1,
-          muted: this.mutedTracks.indexOf(track) > -1,
-          collapsed,
-          height: collapsed ? this.collapsedWaveHeight : this.waveHeight,
-          barGap: this.barGap,
-          barWidth: this.barWidth,
-        })
-      );
-    });
+    const trackElements = [];
+    for (let i = 0; i < this.tracks.length; i++) {
+      const track = this.tracks[i];
+      if (track) {
+        const collapsed = this.collapsedTracks.indexOf(track) > -1;
+        trackElements.push(
+          track.render(
+            this.getTrackRenderData({
+              isActive: this.isActiveTrack(track),
+              shouldPlay: this.shouldTrackPlay(track),
+              soloed: this.soloedTracks.indexOf(track) > -1,
+              muted: this.mutedTracks.indexOf(track) > -1,
+              collapsed,
+              height: collapsed ? this.collapsedWaveHeight : this.waveHeight,
+              barGap: this.barGap,
+              barWidth: this.barWidth,
+            })
+          )
+        );
+      } else {
+        trackElements.push(this.renderTrackLoader());
+      }
+    }
+    for (let i = trackElements.length; i < this.totalTracks; i++) {
+      trackElements.push(this.renderTrackLoader());
+    }
 
     return h(
       "div.playlist-tracks",
