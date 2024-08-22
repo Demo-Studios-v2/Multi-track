@@ -737,7 +737,6 @@ export default class {
     const audibleClass = data.shouldPlay ? "" : ".silent";
     const customClass =
       this.customClass === undefined ? "" : `.${this.customClass}`;
-
     return h(
       `div.channel-wrapper${audibleClass}${customClass}`,
       {
