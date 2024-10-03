@@ -26,7 +26,6 @@ const observer = new MutationObserver((mutationsList, observer) => {
     if (mutation.type === "childList") {
       mutation.removedNodes.forEach((removedNode) => {
         if (removedNode.taskId) {
-          console.log(removedNode.taskId, "removed");
           renderWorkerPool[removedNode.taskId % numRenderWorkers].postMessage({
             type: "destroy",
             taskId: removedNode.taskId,
@@ -78,7 +77,6 @@ class CanvasHook {
       canvas.taskId = currentThreadAllocation++;
       offscreenCanvas = canvas.transferControlToOffscreen();
     }
-    console.log(canvas.taskId);
     let returnTaskId = currentRenderTaskId++;
     renderWorkerPool[canvas.taskId % numRenderWorkers].postMessage(
       {
