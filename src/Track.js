@@ -15,7 +15,7 @@ import CanvasHook from "./render/CanvasHook";
 import FadeCanvasHook from "./render/FadeCanvasHook";
 import StereoPanSliderHook from "./render/StereoPanSliderHook";
 import VolumeSliderHook from "./render/VolumeSliderHook";
-const MAX_CANVAS_WIDTH = 1000;
+const MAX_CANVAS_WIDTH = 7000;
 
 export default class {
   constructor() {
@@ -574,7 +574,6 @@ export default class {
       let offset = 0;
       let totalWidth = width;
       const peaks = this.peaks.data[channelNum];
-
       while (totalWidth > 0) {
         const currentWidth = Math.min(totalWidth, MAX_CANVAS_WIDTH);
         const canvasColor = this.waveOutlineColor

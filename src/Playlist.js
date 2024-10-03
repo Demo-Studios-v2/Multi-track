@@ -389,7 +389,6 @@ export default class {
       this.renderInterval = setInterval(() => {
         this.intervalCounter += 1;
         this.drawRequest();
-        console.log("interval");
         if (this.totalTracks <= this.tracks.filter((t) => t).length) {
           clearInterval(this.renderInterval);
           this.renderInterval = undefined;

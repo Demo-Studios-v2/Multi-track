@@ -1,6 +1,47 @@
 /*
  * virtual-dom hook for drawing to the canvas element.
  */
+import InlineWorker from "inline-worker";
+import RenderWorker from "../RenderWorker";
+const numRenderWorkers = 8;
+let renderPromises = {};
+let renderWorkerPool = new Array(numRenderWorkers).fill(null).map(() => {
+  const worker = new InlineWorker(RenderWorker);
+  worker.onmessage = (e) => {
+    const { taskId } = e.data;
+    renderPromises[taskId].resolve();
+    delete renderPromises[taskId];
+  };
+  worker.onerror = (err) => {
+    console.error(err);
+  };
+  return worker;
+});
+let currentRenderTaskId = 0;
+let currentThreadAllocation = 0;
+
+const observer = new MutationObserver((mutationsList, observer) => {
+  for (let mutation of mutationsList) {
+    // Check if child nodes are removed
+    if (mutation.type === "childList") {
+      mutation.removedNodes.forEach((removedNode) => {
+        if (removedNode.taskId) {
+          console.log(removedNode.taskId, "removed");
+          renderWorkerPool[removedNode.taskId % numRenderWorkers].postMessage({
+            type: "destroy",
+            taskId: removedNode.taskId,
+          });
+        }
+      });
+    }
+  }
+});
+
+// Configure the observer to watch for child node removal
+const config = { childList: true, subtree: true };
+
+// Start observing the parent of the target element
+observer.observe(document.body, config);
 class CanvasHook {
   constructor(peaks, offset, bits, color, scale, height, barWidth, barGap) {
     this.peaks = peaks;
@@ -14,20 +55,6 @@ class CanvasHook {
     this.barGap = barGap;
   }
 
-  static drawFrame(cc, h2, x, minPeak, maxPeak, width, gap) {
-    const min = Math.abs(minPeak * h2);
-    const max = Math.abs(maxPeak * h2);
-
-    // draw max
-    cc.fillRect(x, 0, width, h2 - max);
-    // draw min
-    cc.fillRect(x, h2 + min, width, h2 - min);
-    // draw gap
-    if (gap !== 0) {
-      cc.fillRect(x + width, 0, gap, h2 * 2);
-    }
-  }
-
   hook(canvas, prop, prev) {
     // canvas is up to date
     if (
@@ -38,29 +65,47 @@ class CanvasHook {
     ) {
       return;
     }
-
+    const prevBackground = canvas.style.backgroundColor;
+    canvas.style.backgroundColor = this.color;
     const scale = this.scale;
     const len = canvas.width / scale;
-    const cc = canvas.getContext("2d");
     const h2 = canvas.height / scale / 2;
     const maxValue = 2 ** (this.bits - 1);
     const width = this.barWidth;
     const gap = this.barGap;
-    const barStart = width + gap;
-
-    cc.clearRect(0, 0, canvas.width, canvas.height);
-
-    cc.save();
-    cc.fillStyle = this.color;
-    cc.scale(scale, scale);
-
-    for (let pixel = 0; pixel < len; pixel += barStart) {
-      const minPeak = this.peaks[(pixel + this.offset) * 2] / maxValue;
-      const maxPeak = this.peaks[(pixel + this.offset) * 2 + 1] / maxValue;
-      CanvasHook.drawFrame(cc, h2, pixel, minPeak, maxPeak, width, gap);
+    let offscreenCanvas = undefined;
+    if (canvas.taskId === undefined) {
+      canvas.taskId = currentThreadAllocation++;
+      offscreenCanvas = canvas.transferControlToOffscreen();
     }
+    console.log(canvas.taskId);
+    let returnTaskId = currentRenderTaskId++;
+    renderWorkerPool[canvas.taskId % numRenderWorkers].postMessage(
+      {
+        type: "render",
+        scale,
+        len,
+        canvas: offscreenCanvas,
+        h2,
+        maxValue,
+        width,
+        gap,
+        peaks: this.peaks,
+        offset: this.offset,
+        color: this.color,
+        taskId: canvas.taskId,
+        returnTaskId,
+      },
+      offscreenCanvas ? [offscreenCanvas] : []
+    );
 
-    cc.restore();
+    renderPromises[returnTaskId] = {
+      resolve: () => {
+        setTimeout(() => {
+          canvas.style.backgroundColor = prevBackground;
+        }, 40);
+      },
+    };
   }
 }
 
