@@ -4,6 +4,7 @@ import InlineWorker from "inline-worker";
 import diff from "virtual-dom/diff";
 import h from "virtual-dom/h";
 import patch from "virtual-dom/patch";
+import { AudioReader } from "./utils/audioReader";
 
 import Playout from "./Playout";
 import TimeScale from "./TimeScale";
@@ -150,6 +151,30 @@ export default class {
     return this.ac;
   }
 
+  async decodeAudioBuffer(buffer, usePolyfillReader) {
+    return new Promise((resolve, reject) => {
+      if (usePolyfillReader) {
+        AudioReader(buffer, this.ac).then(({ buffer }) => {
+          resolve(buffer);
+        });
+      } else {
+        this.ac.decodeAudioData(
+          buffer,
+          (audioBuffer) => {
+            resolve(audioBuffer);
+          },
+          (err) => {
+            if (err === null) {
+              // Safari issues with null error
+              reject(Error("MediaDecodeAudioDataUnknownContentType"));
+            } else {
+              reject(err);
+            }
+          }
+        );
+      }
+    });
+  }
   setControlOptions(controlOptions) {
     this.controls = controlOptions;
   }
@@ -401,7 +426,8 @@ export default class {
       const loader = LoaderFactory.createLoader(
         trackInfo.src,
         this.ac,
-        this.ee
+        this.ee,
+        trackInfo.usePolyfillReader
       );
       return loader
         .load(handleProgress)

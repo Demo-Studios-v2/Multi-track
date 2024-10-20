@@ -3,15 +3,17 @@ import IdentityLoader from "./IdentityLoader";
 import XHRLoader from "./XHRLoader";
 
 export default class {
-  static createLoader(src, audioContext, ee) {
+  static createLoader(src, audioContext, ee, usePolyfillReader = false) {
+    let loader;
     if (src instanceof Blob) {
-      return new BlobLoader(src, audioContext, ee);
+      loader = new BlobLoader(src, audioContext, ee);
     } else if (src instanceof AudioBuffer) {
-      return new IdentityLoader(src, audioContext, ee);
+      loader = new IdentityLoader(src, audioContext, ee);
     } else if (typeof src === "string") {
-      return new XHRLoader(src, audioContext, ee);
+      loader = new XHRLoader(src, audioContext, ee);
     }
-
+    loader.usePolyfillReader = usePolyfillReader;
+    return loader;
     throw new Error("Unsupported src type");
   }
 }
