@@ -68,17 +68,14 @@ export default class {
         this.volumeGain && this.volumeGain.disconnect();
         this.shouldPlayGain && this.shouldPlayGain.disconnect();
         this.panner && this.panner.disconnect();
-        this.masterGain && this.masterGain.disconnect();
-
+        // this.masterGain && this.masterGain.disconnect();
         if (cleanupEffects) cleanupEffects();
         if (cleanupMasterEffects) cleanupMasterEffects();
-
         this.source = undefined;
         this.fadeGain = undefined;
         this.volumeGain = undefined;
         this.shouldPlayGain = undefined;
         this.panner = undefined;
-
         resolve();
       };
     });
@@ -154,6 +151,7 @@ export default class {
     Unfortunately it doesn't seem to work if you just give it a start time.
   */
   play(when, start, duration) {
+    console.log(duration);
     this.source.start(when, start, duration);
   }
 
