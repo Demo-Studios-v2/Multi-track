@@ -15,7 +15,7 @@ import CanvasHook from "./render/CanvasHook";
 import FadeCanvasHook from "./render/FadeCanvasHook";
 import StereoPanSliderHook from "./render/StereoPanSliderHook";
 import VolumeSliderHook from "./render/VolumeSliderHook";
-const MAX_CANVAS_WIDTH = 7000;
+const MAX_CANVAS_WIDTH = 1000;
 
 export default class {
   constructor() {
