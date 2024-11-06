@@ -3,7 +3,7 @@
  */
 import InlineWorker from "inline-worker";
 import RenderWorker from "../RenderWorker";
-const numRenderWorkers = 8;
+const numRenderWorkers = 1;
 let renderPromises = {};
 let renderWorkerPool = new Array(numRenderWorkers).fill(null).map(() => {
   const worker = new InlineWorker(RenderWorker);
