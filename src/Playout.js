@@ -68,7 +68,12 @@ export default class {
         this.volumeGain && this.volumeGain.disconnect();
         this.shouldPlayGain && this.shouldPlayGain.disconnect();
         this.panner && this.panner.disconnect();
-        // this.masterGain && this.masterGain.disconnect();
+        let isSafari = /^((?!chrome|android).)*safari/i.test(
+          navigator.userAgent
+        );
+        if (isSafari) {
+          this.masterGain && this.masterGain.disconnect();
+        }
         if (cleanupEffects) cleanupEffects();
         if (cleanupMasterEffects) cleanupMasterEffects();
         this.source = undefined;
