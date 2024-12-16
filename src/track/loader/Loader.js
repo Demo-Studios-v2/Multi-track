@@ -35,7 +35,7 @@ export default class {
 
   fileLoad(e) {
     const audioData = e.target.response || e.target.result;
-
+    this.ee.emit("audiofileloaded", audioData, this.src);
     this.setStateChange(STATE_DECODING);
 
     return new Promise((resolve, reject) => {
