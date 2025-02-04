@@ -957,7 +957,7 @@ export default class {
 
     if (this.isPlaying()) {
       const playbackSeconds = cursorPos + elapsed;
-      this.ee.emit("timeupdate", playbackSeconds);
+      this.ee.emit("timeupdate", playbackSeconds, true);
       this.animationRequest = window.requestAnimationFrame(() => {
         this.updateEditor(playbackSeconds);
       });
