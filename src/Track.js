@@ -36,6 +36,7 @@ export default class {
     this.startTime = 0;
     this.endTime = 0;
     this.stereoPan = 0;
+    this.id = "";
   }
 
   setEventEmitter(ee) {
@@ -46,6 +47,9 @@ export default class {
     this.name = name;
   }
 
+  setId(id) {
+    this.id = id;
+  }
   setCustomClass(className) {
     this.customClass = className;
   }
@@ -567,7 +571,9 @@ export default class {
       const channelChildren = [
         h("div.channel-progress", {
           attributes: {
-            style: `position: absolute; width: ${progressWidth}px; height: ${data.height}px; z-index: 2;`,
+            style: `position: absolute; width: ${progressWidth}px; height: ${
+              data.height - 2
+            }px; z-index: 2;`,
           },
         }),
       ];
@@ -585,7 +591,9 @@ export default class {
             attributes: {
               width: currentWidth * scale,
               height: data.height * scale,
-              style: `float: left; position: relative; margin: 0; padding: 0; z-index: 3; width: ${currentWidth}px; height: ${data.height}px;`,
+              style: `float: left; position: relative; margin: 0; padding: 0; z-index: 3; width: ${currentWidth}px; height: ${
+                data.height - 2
+              }px;`,
             },
             hook: new CanvasHook(
               peaks,
@@ -677,7 +685,7 @@ export default class {
         `div.channel.channel-${channelNum}`,
         {
           attributes: {
-            style: `height: ${data.height}px; width: ${width}px; top: ${
+            style: `height: ${data.height - 2}px; width: ${width}px; top: ${
               channelNum * data.height
             }px; left: ${startX}px; position: absolute; margin: 0; padding: 0; z-index: 1;`,
           },

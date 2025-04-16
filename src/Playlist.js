@@ -440,6 +440,7 @@ export default class {
         })
         .then((audioBuffer) => {
           const info = trackInfo;
+          const id = info.trackId || "";
           const name = info.name || "Untitled";
           const start = info.start || 0;
           const states = info.states || {};
@@ -473,7 +474,7 @@ export default class {
           track.setCues(cueIn, cueOut);
           track.setCustomClass(customClass);
           track.setWaveOutlineColor(waveOutlineColor);
-
+          track.setId(id);
           if (fadeIn !== undefined) {
             track.setFadeIn(fadeIn.duration, fadeIn.shape);
           }
