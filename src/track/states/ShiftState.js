@@ -19,7 +19,11 @@ export default class {
       this.sampleRate
     );
     this.prevX = x;
-    this.track.ee.emit("shift", deltaTime, this.track);
+    if (this.track.getStartTime() + deltaTime > 0) {
+      this.track.ee.emit("shift", deltaTime, this.track);
+    } else {
+      this.track.ee.emit("shift", this.track.getStartTime() * -1, this.track);
+    }
   }
 
   complete(x) {
