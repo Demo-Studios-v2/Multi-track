@@ -61,10 +61,10 @@ export default class {
       track.setName("Recording");
       track.setEnabledStates();
       track.setEventEmitter(this.ee);
-
+      track.setStartTime(this.getCurrentTime());
       this.recordingTrack = track;
       this.tracks.push(track);
-
+      this.recordingBlob = null;
       this.chunks = [];
       this.working = false;
     };
@@ -77,6 +77,7 @@ export default class {
         const recording = new Blob(this.chunks, {
           type: "audio/ogg; codecs=opus",
         });
+        this.recordingBlob = recording;
         const loader = LoaderFactory.createLoader(recording, this.ac);
         loader
           .load()
@@ -773,7 +774,7 @@ export default class {
   }
 
   getElapsedTime() {
-    return this.ac.currentTime - this.lastPlay;
+    return (this.ac.currentTime || 0) - (this.lastPlay || 0);
   }
 
   setMasterGain(gain) {
@@ -842,6 +843,12 @@ export default class {
     return this.playbackReset();
   }
 
+  stopRecording() {
+    if (this.mediaRecorder && this.mediaRecorder.state === "recording") {
+      this.mediaRecorder.stop();
+    }
+  }
+
   stop() {
     if (this.mediaRecorder && this.mediaRecorder.state === "recording") {
       this.mediaRecorder.stop();
@@ -906,16 +913,16 @@ export default class {
     const playoutPromises = [];
     this.mediaRecorder.start(300);
 
-    this.tracks.forEach((track) => {
-      track.setState("none");
-      playoutPromises.push(
-        track.schedulePlay(this.ac.currentTime, 0, undefined, {
-          shouldPlay: this.shouldTrackPlay(track),
-        })
-      );
-    });
+    // this.tracks.forEach((track) => {
+    //   track.setState("none");
+    //   playoutPromises.push(
+    //     track.schedulePlay(this.ac.currentTime, 0, undefined, {
+    //       shouldPlay: this.shouldTrackPlay(track),
+    //     })
+    //   );
+    // });
 
-    this.playoutPromises = playoutPromises;
+    // this.playoutPromises = playoutPromises;
   }
 
   startAnimation(startTime) {
