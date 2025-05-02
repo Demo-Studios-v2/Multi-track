@@ -17,7 +17,7 @@ import { pixelsToSeconds } from "./utils/conversions";
 
 import ExportWavWorkerFunction from "./utils/exportWavWorker";
 import RecorderWorkerFunction from "./utils/recorderWorker";
-const recordId = "none";
+let recordId = "none";
 export default class {
   constructor() {
     this.renderInterval = undefined;
