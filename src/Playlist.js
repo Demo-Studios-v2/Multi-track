@@ -58,6 +58,7 @@ export default class {
 
     this.mediaRecorder.onstart = () => {
       const track = new Track();
+      track.id = this.recordId;
       track.setName("Recording");
       track.setEnabledStates();
       track.setEventEmitter(this.ee);
@@ -909,7 +910,8 @@ export default class {
     });
   }
 
-  record() {
+  record(id) {
+    this.recordId = id;
     const playoutPromises = [];
     this.mediaRecorder.start(300);
 
