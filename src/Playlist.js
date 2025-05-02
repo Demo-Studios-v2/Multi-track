@@ -17,6 +17,7 @@ import { pixelsToSeconds } from "./utils/conversions";
 
 import ExportWavWorkerFunction from "./utils/exportWavWorker";
 import RecorderWorkerFunction from "./utils/recorderWorker";
+const recordId = "none";
 export default class {
   constructor() {
     this.renderInterval = undefined;
@@ -58,8 +59,8 @@ export default class {
 
     this.mediaRecorder.onstart = () => {
       const track = new Track();
-      track.id = this.recordId;
-      track.setName("Recording");
+      track.id = recordId;
+      track.setName("Recording.ogg");
       track.setEnabledStates();
       track.setEventEmitter(this.ee);
       track.setStartTime(this.getCurrentTime());
@@ -911,7 +912,7 @@ export default class {
   }
 
   record(id) {
-    this.recordId = id;
+    recordId = id;
     const playoutPromises = [];
     this.mediaRecorder.start(300);
 
