@@ -89,6 +89,7 @@ export default class {
               samples: audioBuffer.getChannelData(0),
               samplesPerPixel: this.samplesPerPixel,
             });
+            this.recordingTrack.setInitialDuration(audioBuffer.duration);
             this.recordingTrack.setCues(0, audioBuffer.duration);
             this.recordingTrack.setBuffer(audioBuffer);
             this.recordingTrack.setPlayout(
@@ -449,8 +450,8 @@ export default class {
           const states = info.states || {};
           const fadeIn = info.fadeIn;
           const fadeOut = info.fadeOut;
-          const cueIn = info.cuein || 0;
-          const cueOut = info.cueout || audioBuffer.duration;
+          const cueIn = info.cueIn || 0;
+          const cueOut = info.cueOut || audioBuffer.duration;
           const gain = info.gain || 1;
           const muted = info.muted || this.initMutedTracks[i] || false;
           const soloed = info.soloed || this.initSoloTracks[i] || false;
@@ -474,6 +475,7 @@ export default class {
           track.setName(name);
           track.setEventEmitter(this.ee);
           track.setEnabledStates(states);
+          track.setInitialDuration(audioBuffer.duration);
           track.setCues(cueIn, cueOut);
           track.setCustomClass(customClass);
           track.setWaveOutlineColor(waveOutlineColor);

@@ -109,9 +109,10 @@ export default function () {
     var slice;
 
     cueIn = defaultNumber(cueIn, 0);
-    cueOut = defaultNumber(cueOut, source.length);
+
     for (c = 0; c < numChan; c++) {
       channel = source[c];
+      cueOut = defaultNumber(cueOut, channel.length);
       slice = channel.subarray(cueIn, cueOut);
       peaks.push(extractPeaksCalc(slice, samplesPerPixelArray, bits));
     }

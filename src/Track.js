@@ -29,7 +29,7 @@ export default class {
       mono: false,
     };
     this.peakDataPerZoom = {};
-
+    this.initialDuration = 0;
     this.cueIn = 0;
     this.cueOut = 0;
     this.duration = 0;
@@ -47,6 +47,10 @@ export default class {
     this.name = name;
   }
 
+  setInitialDuration(duration) {
+    this.initialDuration = duration;
+  }
+
   setId(id) {
     this.id = id;
   }
@@ -59,12 +63,9 @@ export default class {
   }
 
   setCues(cueIn, cueOut) {
-    if (cueOut < cueIn) {
-      throw new Error("cue out cannot be less than cue in");
-    }
-
     this.cueIn = cueIn;
     this.cueOut = cueOut;
+
     this.duration = this.cueOut - this.cueIn;
     this.endTime = this.startTime + this.duration;
   }
@@ -73,22 +74,46 @@ export default class {
    *   start, end in seconds relative to the entire playlist.
    */
   trim(start, end) {
-    const trackStart = this.getStartTime();
-    const trackEnd = this.getEndTime();
-    const offset = this.cueIn - trackStart;
+    const trackStart = this.getStartTime(); // track position on timeline
+    const trackEnd = trackStart + (this.cueOut - this.cueIn); // track end position on timeline
 
-    if (
-      (trackStart <= start && trackEnd >= start) ||
-      (trackStart <= end && trackEnd >= end)
-    ) {
-      const cueIn = start < trackStart ? trackStart : start;
-      const cueOut = end > trackEnd ? trackEnd : end;
+    // Ensure start and end are within valid timeline bounds
+    const minTrackLength = 0.01;
+    if (start < 0) start = 0;
+    if (end < start + minTrackLength) end = start + minTrackLength;
 
-      this.setCues(cueIn + offset, cueOut + offset);
-      if (start > trackStart) {
-        this.setStartTime(start);
+    // Convert absolute timeline positions to relative cues
+    let newCueIn = this.cueIn + (start - trackStart);
+    let newCueOut = this.cueOut + (end - trackEnd);
+
+    // Clamp to original buffer limits [0, initialDuration]
+    if (newCueIn < 0) {
+      // Adjust start to avoid exceeding the left buffer limit
+      start += -newCueIn; // shift track right
+      newCueIn = 0;
+    }
+
+    if (newCueOut > this.initialDuration) {
+      // Adjust end to avoid exceeding the right buffer limit
+      end -= newCueOut - this.initialDuration; // shift track left
+      newCueOut = this.initialDuration;
+    }
+
+    // Ensure after adjustments we didn't invert the range
+    if (end - start < minTrackLength) {
+      end = start + minTrackLength;
+      newCueOut = newCueIn + minTrackLength;
+      if (newCueOut > this.initialDuration) {
+        newCueOut = this.initialDuration;
+        newCueIn = newCueOut - minTrackLength;
+        start = trackStart - (this.cueIn - newCueIn);
       }
     }
+
+    // Finally, set the cues and new start time
+    this.setCues(newCueIn, newCueOut);
+    this.setStartTime(start);
+    this.ee.emit("crop", this);
   }
 
   setStartTime(start) {
@@ -178,19 +203,49 @@ export default class {
   setPeakData(data) {
     this.peakData = data;
   }
+  cropPeaks(precalculatedPeaks, cueIn, cueOut, samplesPerPixel) {
+    const peakStart = Math.floor(cueIn / samplesPerPixel) * 2;
+    const peakEnd = Math.ceil(cueOut / samplesPerPixel) * 2;
 
+    return {
+      data: precalculatedPeaks.data.map((channelPeaks) =>
+        channelPeaks.slice(peakStart, peakEnd)
+      ),
+      length: (peakEnd - peakStart) / 2,
+      bits: precalculatedPeaks.bits,
+    };
+  }
+  defaultNumber(value, defaultNumber) {
+    if (typeof value === "number") {
+      return value;
+    } else {
+      return defaultNumber;
+    }
+  }
   calculatePeaks(samplesPerPixel, sampleRate) {
-    const cueIn = secondsToSamples(this.cueIn, sampleRate);
-    const cueOut = secondsToSamples(this.cueOut, sampleRate);
-    this.setPeaks(
-      this.peakDataPerZoom[samplesPerPixel] ||
-        extractPeaks(
-          this.buffer,
-          samplesPerPixel,
-          this.peakData.mono,
+    let cueIn = secondsToSamples(this.cueIn, sampleRate);
+    let cueOut = secondsToSamples(this.cueOut, sampleRate);
+    if (this.peakDataPerZoom[samplesPerPixel]) {
+      cueIn = this.defaultNumber(cueIn, 0);
+      cueOut = this.defaultNumber(cueOut, this.buffer.length);
+      this.setPeaks(
+        this.cropPeaks(
+          this.peakDataPerZoom[samplesPerPixel],
           cueIn,
-          cueOut
+          cueOut,
+          samplesPerPixel
         )
+      );
+      return;
+    }
+    this.setPeaks(
+      extractPeaks(
+        this.buffer,
+        samplesPerPixel,
+        this.peakData.mono,
+        cueIn,
+        cueOut
+      )
     );
   }
   async calculatePeaksPerZoom(samplesPerPixelArray, sampleRate) {
@@ -200,8 +255,8 @@ export default class {
       this.buffer,
       samplesPerPixelArray,
       this.peakData.mono,
-      cueIn,
-      cueOut
+      undefined,
+      undefined
     );
   }
 
