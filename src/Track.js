@@ -145,6 +145,7 @@ export default class {
     if (duration > this.duration) {
       throw new Error("Invalid Fade In");
     }
+    his.ee.emit("fadein", this, duration);
 
     const fade = {
       shape,
@@ -165,6 +166,7 @@ export default class {
       throw new Error("Invalid Fade Out");
     }
 
+    this.ee.emit("fadeout", this, duration);
     const fade = {
       shape,
       start: this.duration - duration,
