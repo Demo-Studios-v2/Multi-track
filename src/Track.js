@@ -145,7 +145,7 @@ export default class {
     if (duration > this.duration) {
       throw new Error("Invalid Fade In");
     }
-    his.ee.emit("fadein", this, duration);
+    this.ee.emit("fadein", this, duration);
 
     const fade = {
       shape,
